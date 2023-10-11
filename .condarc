@@ -1,0 +1,6 @@
+changeps1: false
+channels:
+  - anaconda
+  - defaults
+  - conda-forge
+  - bioconda
