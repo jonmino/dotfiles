@@ -15,10 +15,8 @@ alias l='ls -CF'
 alias yazi="~/Downloads/yazi/target/release/yazi ."
 alias y="yazicdonquit"
 
-# e5 / Bachelorarbeit
-alias mounte5='sshfs interactive:/net/nfshome2/home/jminor ~/Studium/e5Interactive -o auto_cache,reconnect,follow_symlinks,no_readahead'
-alias rebuildProton="cd ~/Studium/Bachelorarbeit/protonSim/ && rm -rf proton-build && mkdir proton-build && cd proton-build && cmake ../proton -DGeant4_DIR=~/geant4-v11.1.2-install/lib/Geant4-11.1.2/ -DGEANT4_USE_GDML=ON && make -j"
-alias geant="mamba activate g4 && source ~/geant4-v11.1.2-install/bin/geant4.sh && cd ~/Studium/Bachelorarbeit/" # && export LD_LIBRARY_PATH=/home/jomino/geant4-v11.1.1-install/lib"
+# WSL2/Windows
+alias reveal="explorer.exe ." # Reveal current dir in File explorer
 
 # configs
 alias zshconf="nvim ~/.zshrc"
