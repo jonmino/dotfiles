@@ -8,7 +8,8 @@ alias .4='cd ../../../../'
 alias .5='cd ../../../../..'
 
 # ls/k/nnn aliases
-alias k="k -ah"
+alias k="k -h"
+alias kk="k -ah"
 alias ll='ls -CFAlh'
 alias la='ls -CFA'
 alias l='ls -CF'
