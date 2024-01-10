@@ -13,20 +13,19 @@ alias kk="k -ah"
 alias ll='ls -CFAlh'
 alias la='ls -CFA'
 alias l='ls -CF'
-alias yazi="~/Downloads/yazi/target/release/yazi ."
 alias y="yazicdonquit"
 
 # WSL2/Windows
 alias reveal="explorer.exe ." # Reveal current dir in File explorer
 
 # configs
-alias zshconf="nvim ~/.zshrc"
-alias updateconf="nvim ~/update.sh"
-alias ohmyzsh="nvim ~/.oh-my-zsh"
-alias zshconf="nvim ~/.zshrc"
-alias p10kconf="nvim ~/.p10k.zsh"
-alias aliasconf="nvim ~/.oh-my-zsh/custom/alias.zsh" # <- this file
-alias tmuxconf="nvim ~/.config/tmux/tmux.conf"
+alias zshconf="nvim ~/dotfiles/.zshrc"
+alias updateconf="nvim ~/dotfiles/update.sh"
+alias ohmyzsh="nvim ~/dotfiles/.oh-my-zsh"
+alias zshconf="nvim ~/dotfiles/.zshrc"
+alias p10kconf="nvim ~/dotfiles/.p10k.zsh"
+alias aliasconf="nvim ~/dotfiles/.oh-my-zsh/custom/alias.zsh" # <- this file
+alias tmuxconf="nvim ~/dotfiles/.config/tmux/tmux.conf"
 
 # make
 alias remake='make clean && make'
@@ -44,6 +43,7 @@ alias fgrep='fgrep --color=auto'
 
 # git
 alias gits="git status -s"
+alias gitl="git lg"
 
 # vim
 alias vim=nvim
@@ -54,8 +54,5 @@ alias updatetl="tlmgr update --self --all --reinstall-forcibly-removed"
 
 
 # misc 
-alias sshagent="eval $(ssh-agent -s)"
-alias hello="fortune | cowsay -f tux"
 alias rm='rm -rfi'
-alias update="zsh ~/update.sh"
-alias praktikum="mamba activate prak && cd ~/Studium/Praktikum/Versuchsprotokolle"
+alias update="zsh ~/dotfiles/update.sh"
