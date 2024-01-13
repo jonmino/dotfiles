@@ -1,3 +1,5 @@
+# Initialize ssh-agent
+eval $(ssh-agent -s)
 # Autostart tmux with zsh to always have it running
 if [ -z "$TMUX" ]; then
   exec tmux new-session -A -s Workspace

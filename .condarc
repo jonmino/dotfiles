@@ -1,6 +1,11 @@
+# File to Configure Conda/Mamba
+
+# Disable environment in Prompt as it is handled by p10k
 changeps1: false
+
+# Configure default Channels
 channels:
-  - anaconda
-  - defaults
   - conda-forge
-  - bioconda
+  - defaults
+  # - bioconda
+  # - anaconda
