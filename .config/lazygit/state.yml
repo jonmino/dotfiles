@@ -1,9 +1,7 @@
 lastupdatecheck: 0
 recentrepos:
-- /home/jomino/Studium/Praktikum/Versuchsprotokolle
-- /home/jomino/Studium/Bachelorarbeit/protonSim
+- /home/jomino/dotfiles
 startuppopupversion: 5
-customcommandshistory:
-- q
+customcommandshistory: []
 hidecommandlog: false
 ignorewhitespaceindiffview: false
