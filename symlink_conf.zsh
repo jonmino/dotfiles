@@ -9,7 +9,11 @@ ls .config/ | {
     declare -a dirlist
     while read dirlist;
     do
-        cp -rsf ~/dotfiles/.config/"${dirlist}"/. ~/.config/"${dirlist}"
+	DIRECTORY=~/.config/"${dirlist}"
+	if [ ! -d "$DIRECTORY" ]; then
+	    mkdir $DIRECTORY
+	fi
+        cp -rsf ~/dotfiles/.config/"${dirlist}"/* ~/.config/"${dirlist}"
     done 
 }
 
@@ -19,7 +23,11 @@ ls .oh-my-zsh/ | {
     declare -a dirlist
     while read dirlist;
     do
-        cp -rsf ~/dotfiles/.oh-my-zsh/"${dirlist}"/. ~/.oh-my-zsh/"${dirlist}"
+	DIRECTORY=~/.oh-my-zsh/"${dirlist}"
+	if [ ! -d "$DIRECTORY" ]; then
+	    mkdir $DIRECTORY
+	fi
+        cp -rsf ~/dotfiles/.oh-my-zsh/"${dirlist}"/* ~/.oh-my-zsh/"${dirlist}"
     done 
 }
 
