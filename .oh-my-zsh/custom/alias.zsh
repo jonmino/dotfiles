@@ -21,7 +21,7 @@ alias reveal="explorer.exe ." # Reveal current dir in File explorer
 
 # configs
 alias zshconf="nvim ~/dotfiles/.zshrc"
-alias updateconf="nvim ~/dotfiles/update.sh"
+alias updateconf="nvim ~/dotfiles/update.zsh"
 alias ohmyzsh="nvim ~/dotfiles/.oh-my-zsh"
 alias zshconf="nvim ~/dotfiles/.zshrc"
 alias p10kconf="nvim ~/dotfiles/.p10k.zsh"
@@ -56,4 +56,4 @@ alias updatetl="tlmgr update --self --all --reinstall-forcibly-removed"
 
 # misc 
 alias rm='rm -rfi'
-alias update="zsh ~/dotfiles/update.sh"
+alias update="zsh ~/dotfiles/update.zsh"
