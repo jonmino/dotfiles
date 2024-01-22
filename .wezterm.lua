@@ -21,7 +21,11 @@ local SURFACE0 = "#313244"
 local SURFACE1 = "#45475a"
 local TEXT = "#cdd6f4"
 local SUBTEXT0 = "#a6adc8"
+local RED = "#f38ba8"
+local MAROON = "#eba0ac"
 local PEACH = "#fab387"
+local YELLOW = "#f9e2af"
+local BLUE = "#89b4fa"
 local SAPPHIRE = "#74c7ec"
 local SKY = "#89dceb"
 local MAUVE = "#cba6f7"
@@ -36,6 +40,7 @@ local SOLID_RECTANGLE = "█"
 local SOLID_SLASH_LEFT = ""
 -- Slash right: "\ue0bc" -> 
 local SOLID_SLASH_RIGHT = ""
+local CHEVRON_RIGHT = wezterm.nerdfonts.fa_chevron_left
 
 -- Basic Settings:
 -- change default domain to WSL
@@ -65,8 +70,8 @@ config.inactive_pane_hsb = {
 	brightness = 0.5,
 }
 -- Tab bar
-config.window_decorations = "INTEGRATED_BUTTONS" -- TITLE und RESIZE / INTEGRATED_BUTTONS|RESIZE
-config.integrated_title_button_style = "Windows" -- Styles = Windows, MacOSNative, Gnome
+config.window_decorations = "INTEGRATED_BUTTONS | RESIZE" -- TITLE und RESIZE / INTEGRATED_BUTTONS|RESIZE
+config.integrated_title_button_style = "Windows"          -- Styles = Windows, MacOSNative, Gnome
 config.use_fancy_tab_bar = false
 config.status_update_interval = 1000
 config.tab_bar_at_bottom = false
@@ -85,11 +90,29 @@ function tab_title(tab_info)
 	return tab_info.active_pane.title
 end
 
-function tab_number(tab_info)
-	local number = tostring(tab_info.tab_index + 1)
-	if number and #number > 0 then
-		return number
-	end
+function button_style(bg, fg)
+	return wezterm.format {
+		{ Background = { Color = fg } },
+		{ Foreground = { Color = bg } },
+		{ Text = SOLID_RIGHT_ARROW },
+		{ Background = { Color = bg } },
+		{ Foreground = { Color = fg } },
+		{ Text = SOLID_RIGHT_ARROW },
+	}
+end
+
+function new_tab(bg, text)
+	return wezterm.format {
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = bg } },
+		{ Text = SOLID_SLASH_LEFT },
+		{ Background = { Color = bg } },
+		{ Foreground = { Color = text } },
+		{ Text = "+" },
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = bg } },
+		{ Text = SOLID_SLASH_RIGHT },
+	}
 end
 
 wezterm.on(
@@ -113,11 +136,10 @@ wezterm.on(
 		local edge_foreground = background
 
 		local title = tab_title(tab)
-		local number = tab_number(tab)
 		-- ensure that the titles fit in the available space,
 		-- and that we have room for the edges.
 		title = wezterm.truncate_right(title, max_width - 6)
-		number = wezterm.truncate_right(number, max_width - 4)
+		number = wezterm.truncate_right(tostring(tab.tab_index + 1), max_width - 4)
 
 		return {
 			{ Background = { Color = edge_background } },
@@ -137,29 +159,94 @@ wezterm.on(
 	end
 )
 config.tab_bar_style = {
-	new_tab = wezterm.format {
-		{ Background = { Color = CRUST } },
-		{ Foreground = { Color = SURFACE0 } },
-		{ Text = SOLID_SLASH_LEFT },
-		{ Background = { Color = SURFACE0 } },
-		{ Foreground = { Color = SUBTEXT0 } },
-		{ Text = "+" },
-		{ Background = { Color = CRUST } },
-		{ Foreground = { Color = SURFACE0 } },
-		{ Text = SOLID_SLASH_RIGHT },
-	},
-	new_tab_hover = wezterm.format {
-		{ Background = { Color = CRUST } },
-		{ Foreground = { Color = SURFACE1 } },
-		{ Text = SOLID_SLASH_LEFT },
-		{ Background = { Color = SURFACE1 } },
-		{ Foreground = { Color = TEXT } },
-		{ Text = "+" },
-		{ Background = { Color = CRUST } },
-		{ Foreground = { Color = SURFACE1 } },
-		{ Text = SOLID_SLASH_RIGHT },
-	},
+	new_tab = new_tab(SURFACE0, SUBTEXT0),
+	new_tab_hover = new_tab(SURFACE1, TEXT),
+	window_hide = button_style(CRUST, PEACH),
+	window_hide_hover = button_style(SURFACE0, YELLOW),
+	window_maximize = button_style(CRUST, BLUE),
+	window_maximize_hover = button_style(SURFACE0, SAPPHIRE),
+	window_close = button_style(CRUST, RED),
+	window_close_hover = button_style(SURFACE0, MAROON),
 }
+
+-- Right Stauts
+wezterm.on("update-status", function(window, pane)
+	-- Workspace name
+	local stat = window:active_workspace()
+	local stat_color = RED
+	-- It's a little silly to have workspace name all the time
+	-- Utilize this to display LDR or current key table name
+	if window:active_key_table() then
+		stat = window:active_key_table()
+		stat_color = SKY
+	end
+	if window:leader_is_active() then
+		stat = "LDR"
+		stat_color = MAUVE
+	end
+
+	-- Current working directory
+	local basename = function(s)
+		-- Nothing a little regex can't fix
+		return string.gsub(s, "(.*[/\\])(.*)", "%2")
+	end
+	-- CWD and CMD could be nil (e.g. viewing log using Ctrl-Alt-l). Not a big deal, but check in case
+	local cwd = pane:get_current_working_dir()
+	cwd = cwd and basename(cwd) or ""
+	-- Current command
+	local cmd = pane:get_title()
+	cmd = cmd and basename(cmd) or ""
+
+	-- Time
+	local time = wezterm.strftime("%H:%M")
+	local date = wezterm.strftime("%Y-%m-%d")
+
+	-- Left status (left of the tab line)
+	window:set_left_status(wezterm.format {
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = stat_color } },
+		{ Text = SOLID_RECTANGLE },
+		{ Background = { Color = stat_color } },
+		{ Foreground = { Color = CRUST } },
+		{ Text = wezterm.nerdfonts.md_desktop_tower .. " " },
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = stat_color } },
+		{ Text = SOLID_SLASH_RIGHT },
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = stat_color } },
+		{ Text = " " .. stat },
+		{ Background = { Color = stat_color } },
+		{ Foreground = { Color = CRUST } },
+		{ Text = SOLID_RECTANGLE .. SOLID_SLASH_RIGHT },
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = stat_color } },
+		{ Text = SOLID_SLASH_RIGHT },
+	})
+
+	-- Right status
+	window:set_right_status(wezterm.format {
+		-- Wezterm has a built-in nerd fonts
+		-- https://wezfurlong.org/wezterm/config/lua/wezterm/nerdfonts.html
+		{ Background = { Color = CRUST } },
+		{ Foreground = { Color = PEACH } },
+		{ Text = SOLID_LEFT_ARROW },
+		{ Background = { Color = PEACH } },
+		{ Foreground = { Color = CRUST } },
+		{ Text = wezterm.nerdfonts.md_folder .. " " .. cwd .. " " },
+		{ Background = { Color = PEACH } },
+		{ Foreground = { Color = SKY } },
+		{ Text = SOLID_LEFT_ARROW },
+		{ Background = { Color = SKY } },
+		{ Foreground = { Color = CRUST } },
+		{ Text = wezterm.nerdfonts.md_clock .. " " .. time .. " " },
+		{ Background = { Color = SKY } },
+		{ Foreground = { Color = MAUVE } },
+		{ Text = SOLID_LEFT_ARROW },
+		{ Background = { Color = MAUVE } },
+		{ Foreground = { Color = CRUST } },
+		{ Text = wezterm.nerdfonts.md_calendar .. " " .. date .. " " .. SOLID_LEFT_ARROW },
+	})
+end)
 
 -- Keybindings
 config.leader = { key = " ", mods = "CTRL", timeout_milliseconds = 2500 }
