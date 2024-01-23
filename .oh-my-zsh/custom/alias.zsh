@@ -15,6 +15,7 @@ alias la='ls -CFA'
 alias l='ls -CF'
 alias yazi="~/Downloads/yazi/target/release/yazi ."
 alias y="yazicdonquit"
+alias lg="lazygit"
 
 # WSL2/Windows
 alias reveal="explorer.exe ." # Reveal current dir in File explorer
