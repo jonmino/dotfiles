@@ -1,15 +1,5 @@
 ﻿-- Pull in the wezterm API
 local wezterm = require("wezterm")
-
--- This table will hold the configuration.
-local config = {}
-
--- In newer versions of wezterm, use the config_builder which will
--- help provide clearer error messages
-if wezterm.config_builder then
-	config = wezterm.config_builder()
-end
-
 -- imports/aliases
 local mux = wezterm.mux
 local act = wezterm.action
@@ -40,42 +30,9 @@ local SOLID_RECTANGLE = "█"
 local SOLID_SLASH_LEFT = ""
 -- Slash right: "\ue0bc" -> 
 local SOLID_SLASH_RIGHT = ""
-local CHEVRON_RIGHT = wezterm.nerdfonts.fa_chevron_left
 
--- Basic Settings:
--- change default domain to WSL
-config.default_domain = "WSL:Ubuntu"
-config.color_scheme = "Catppuccin Mocha" -- or Macchiato, Frappe, Latte, nord
-config.font = wezterm.font_with_fallback({
-	{ family = "FiraCode Nerd Font Mono",                 weight = "Medium", italic = false, scale = 1.25 },
-	{ family = "MesloLGS NF",                             scale = 1.25 },
-	{ family = "SourceCodePro+Powerline+Awesome+Regular", scale = 1.25 },
-})
-config.adjust_window_size_when_changing_font_size = false
-config.font_size = 12.5
-config.line_height = 1
-config.window_background_opacity = 0.925
-config.window_close_confirmation = "AlwaysPrompt"
-config.scrollback_lines = 5000
-config.enable_scroll_bar = false
-config.default_workspace = "main"
--- startup size
-config.initial_rows = 36
-config.initial_cols = 120
-
--- Visual Settings:
--- inactive panes
-config.inactive_pane_hsb = {
-	saturation = 0.75,
-	brightness = 0.5,
-}
--- Tab bar
-config.window_decorations = "INTEGRATED_BUTTONS | RESIZE" -- TITLE und RESIZE / INTEGRATED_BUTTONS|RESIZE
-config.integrated_title_button_style = "Windows"          -- Styles = Windows, MacOSNative, Gnome
-config.use_fancy_tab_bar = false
-config.status_update_interval = 1000
-config.tab_bar_at_bottom = false
--- This function returns the suggested title for a tab.
+-- Functions:
+-- -- This function returns the suggested title for a tab.
 -- It prefers the title that was set via `tab:set_title()`
 -- or `wezterm cli set-tab-title`, but falls back to the
 -- title of the active pane in that tab.
@@ -115,6 +72,57 @@ function new_tab(bg, text)
 	}
 end
 
+function right_status_element(fg, next, text)
+	return { Background = { Color = next } },
+		{ Foreground = { Color = fg } },
+		{ Text = SOLID_LEFT_ARROW },
+		{ Background = { Color = fg } },
+		{ Foreground = { Color = CRUST } },
+		{ Text = text }
+end
+
+-- This table will hold the configuration.
+local config = {}
+
+-- In newer versions of wezterm, use the config_builder which will
+-- help provide clearer error messages
+if wezterm.config_builder then
+	config = wezterm.config_builder()
+end
+
+-- Basic Settings:
+-- change default domain to WSL
+config.default_domain = "WSL:Ubuntu"
+config.color_scheme = "Catppuccin Mocha" -- or Macchiato, Frappe, Latte, nord
+config.font = wezterm.font_with_fallback({
+	{ family = "FiraCode Nerd Font Mono",                 weight = "Medium", italic = false, scale = 1.25 },
+	{ family = "MesloLGS NF",                             scale = 1.25 },
+	{ family = "SourceCodePro+Powerline+Awesome+Regular", scale = 1.25 },
+})
+config.adjust_window_size_when_changing_font_size = false
+config.font_size = 12.5
+config.line_height = 1
+config.window_background_opacity = 0.925
+config.window_close_confirmation = "AlwaysPrompt"
+config.scrollback_lines = 5000
+config.enable_scroll_bar = false
+config.default_workspace = "main"
+-- startup size
+config.initial_rows = 36
+config.initial_cols = 120
+
+-- Visual Settings:
+-- inactive panes
+config.inactive_pane_hsb = {
+	saturation = 0.75,
+	brightness = 0.5,
+}
+-- Tab bar
+config.window_decorations = "INTEGRATED_BUTTONS | RESIZE" -- TITLE und RESIZE / INTEGRATED_BUTTONS|RESIZE
+config.integrated_title_button_style = "Windows"          -- Styles = Windows, MacOSNative, Gnome
+config.use_fancy_tab_bar = false
+config.status_update_interval = 1000
+config.tab_bar_at_bottom = false
 wezterm.on(
 	'format-tab-title',
 	function(tab, tabs, panes, config, hover, max_width)
@@ -178,7 +186,7 @@ wezterm.on("update-status", function(window, pane)
 	-- Utilize this to display LDR or current key table name
 	if window:active_key_table() then
 		stat = window:active_key_table()
-		stat_color = SKY
+		stat_color = SAPPHIRE
 	end
 	if window:leader_is_active() then
 		stat = "LDR"
@@ -212,8 +220,6 @@ wezterm.on("update-status", function(window, pane)
 		{ Background = { Color = CRUST } },
 		{ Foreground = { Color = stat_color } },
 		{ Text = SOLID_SLASH_RIGHT },
-		{ Background = { Color = CRUST } },
-		{ Foreground = { Color = stat_color } },
 		{ Text = " " .. stat },
 		{ Background = { Color = stat_color } },
 		{ Foreground = { Color = CRUST } },
@@ -224,48 +230,37 @@ wezterm.on("update-status", function(window, pane)
 	})
 
 	-- Right status
-	window:set_right_status(wezterm.format {
-		-- Wezterm has a built-in nerd fonts
-		-- https://wezfurlong.org/wezterm/config/lua/wezterm/nerdfonts.html
-		{ Background = { Color = CRUST } },
-		{ Foreground = { Color = PEACH } },
-		{ Text = SOLID_LEFT_ARROW },
-		{ Background = { Color = PEACH } },
-		{ Foreground = { Color = CRUST } },
-		{ Text = wezterm.nerdfonts.md_folder .. " " .. cwd .. " " },
-		{ Background = { Color = PEACH } },
-		{ Foreground = { Color = SKY } },
-		{ Text = SOLID_LEFT_ARROW },
-		{ Background = { Color = SKY } },
-		{ Foreground = { Color = CRUST } },
-		{ Text = wezterm.nerdfonts.md_clock .. " " .. time .. " " },
-		{ Background = { Color = SKY } },
-		{ Foreground = { Color = MAUVE } },
-		{ Text = SOLID_LEFT_ARROW },
-		{ Background = { Color = MAUVE } },
-		{ Foreground = { Color = CRUST } },
-		{ Text = wezterm.nerdfonts.md_calendar .. " " .. date .. " " .. SOLID_LEFT_ARROW },
-	})
+	-- Wezterm has a built-in nerd fonts
+	-- https://wezfurlong.org/wezterm/config/lua/wezterm/nerdfonts.html
+	window:set_right_status(
+		wezterm.format { right_status_element(PEACH, CRUST, wezterm.nerdfonts.md_folder .. " " .. cwd .. " "), } ..
+		wezterm.format { right_status_element(SAPPHIRE, PEACH, wezterm.nerdfonts.md_clock .. " " .. time .. " ") } ..
+		wezterm.format { right_status_element(MAUVE, SAPPHIRE,
+			wezterm.nerdfonts.md_calendar .. " " .. date .. " " .. SOLID_LEFT_ARROW) }
+	)
 end)
 
 -- Keybindings
+config.disable_default_key_bindings = true
 config.leader = { key = " ", mods = "CTRL", timeout_milliseconds = 2500 }
 config.keys = {
-	-- Send C-Space when pressing C-Space twice
-	{ key = " ", mods = "LEADER", action = act.SendKey({ key = " ", mods = "CTRL" }) },
-	{ key = "c", mods = "LEADER", action = act.ActivateCopyMode },
-	-- Pane keybindings
-	{ key = "-", mods = "LEADER", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-	{ key = "/", mods = "LEADER", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ key = "h", mods = "CTRL",   action = act.ActivatePaneDirection("Left") },
-	{ key = "j", mods = "CTRL",   action = act.ActivatePaneDirection("Down") },
-	{ key = "k", mods = "CTRL",   action = act.ActivatePaneDirection("Up") },
-	{ key = "l", mods = "CTRL",   action = act.ActivatePaneDirection("Right") },
-	{ key = "q", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
-	{ key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
-	{ key = "o", mods = "LEADER", action = act.RotatePanes("Clockwise") },
+	{ key = 'Tab',   mods = 'CTRL',       action = act.ActivateTabRelative(1) },
+	{ key = 'Tab',   mods = 'SHIFT|CTRL', action = act.ActivateTabRelative(-1) },
+	{ key = 'Enter', mods = 'ALT',        action = act.ToggleFullScreen },
+	{ key = 'Space', mods = 'LEADER',     action = act.SendKey { key = 'Space', mods = 'CTRL' } }, -- To be able to send CTRL Space
+	{ key = '+',     mods = 'CTRL',       action = act.IncreaseFontSize },
+	{ key = '-',     mods = 'CTRL',       action = act.DecreaseFontSize },
+	{ key = '-',     mods = 'LEADER',     action = act.SplitVertical { domain = 'CurrentPaneDomain' } },
+	{ key = '/',     mods = 'LEADER',     action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } },
+	{ key = '0',     mods = 'CTRL',       action = act.ResetFontSize },
+	{ key = 'f',     mods = 'CTRL',       action = act.Search 'CurrentSelectionOrEmptyString' },
+	{ key = 'p',     mods = 'CTRL',       action = act.ActivateCommandPalette },
+	{ key = 'r',     mods = 'CTRL',       action = act.ReloadConfiguration },
+	{ key = '[',     mods = 'LEADER',     action = act.ActivateTabRelative(-1) },
+	{ key = ']',     mods = 'LEADER',     action = act.ActivateTabRelative(1) },
+	{ key = 'c',     mods = 'LEADER',     action = act.ActivateCopyMode },
 	{
-		key = "e", -- Renaming current Tab
+		key = "e",
 		mods = "LEADER",
 		action = act.PromptInputLine {
 			description = wezterm.format {
@@ -280,37 +275,71 @@ config.keys = {
 			end)
 		}
 	},
-	-- Seperate Keybindins for resizing panes possible
-	-- But WezTerm offers custom "mode" -> "KeyTable"
-	{ key = "r", mods = "LEADER", action = act.ActivateKeyTable({ name = "resize_pane", one_shot = false }) },
-
-	-- Tab Keybindins
-	{ key = "t", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
-	{ key = "[", mods = "LEADER", action = act.ActivateTabRelative(-1) },
-	{ key = "]", mods = "LEADER", action = act.ActivateTabRelative(1) },
-	{ key = "n", mods = "LEADER", action = act.ShowTabNavigator },
-	-- KeyTable to move Tabs
-	{ key = "m", mods = "LEADER", action = act.ActivateKeyTable({ name = "move_tab", one_shot = false }) },
-	-- Workspace
-	{ key = "w", mods = "LEADER", action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }) },
-}
--- Config of KeyTables
-config.key_tables = {
-	resize_pane = {
-		{ key = "h",      action = act.AdjustPaneSize({ "Left", 1 }) },
-		{ key = "j",      action = act.AdjustPaneSize({ "Down", 1 }) },
-		{ key = "k",      action = act.AdjustPaneSize({ "Up", 1 }) },
-		{ key = "l",      action = act.AdjustPaneSize({ "Right", 1 }) },
-		{ key = "Escape", action = "PopKeyTable" },
-		{ key = "Enter",  action = "PopKeyTable" },
+	{ key = 'h', mods = 'CTRL', action = act.ActivatePaneDirection 'Left' },
+	{ key = 'j', mods = 'CTRL', action = act.ActivatePaneDirection 'Down' },
+	{ key = 'k', mods = 'CTRL', action = act.ActivatePaneDirection 'Up' },
+	{ key = 'l', mods = 'CTRL', action = act.ActivatePaneDirection 'Right' },
+	{
+		key = 'm',
+		mods = 'LEADER',
+		action = act.ActivateKeyTable { name = 'move_tab', one_shot = false, prevent_fallback = false, replace_current = false, until_unknown = false }
 	},
+	{ key = 'n', mods = 'LEADER', action = act.ShowTabNavigator },
+	{ key = 'o', mods = 'LEADER', action = act.RotatePanes 'Clockwise' },
+	{ key = 'q', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } },
+	{
+		key = 'r',
+		mods = 'LEADER',
+		action = act.ActivateKeyTable { name = 'resize_pane', one_shot = false, prevent_fallback = false, replace_current = false, until_unknown = false }
+	},
+	{ key = 't', mods = 'LEADER', action = act.SpawnTab 'CurrentPaneDomain' },
+	{ key = 'v', mods = 'CTRL',   action = act.PasteFrom 'Clipboard' },
+	{ key = 'x', mods = 'LEADER', action = act.CloseCurrentTab { confirm = true } },
+	{ key = 'w', mods = 'LEADER', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
+	-- Prompt for a name to use for a new workspace and switch to it.
+	{
+		key = 'W',
+		mods = 'LEADER',
+		action = act.PromptInputLine {
+			description = wezterm.format {
+				{ Attribute = { Intensity = 'Bold' } },
+				{ Foreground = { AnsiColor = 'Fuchsia' } },
+				{ Text = 'Enter name for new workspace' },
+			},
+			action = wezterm.action_callback(function(window, pane, line)
+				-- line will be `nil` if they hit escape without entering anything
+				-- An empty string if they just hit enter
+				-- Or the actual line of text they wrote
+				if line then
+					window:perform_action(
+						act.SwitchToWorkspace {
+							name = line,
+						},
+						pane
+					)
+				end
+			end),
+		},
+	},
+	{ key = 'z', mods = 'LEADER', action = act.TogglePaneZoomState },
+}
+config.key_tables = {
 	move_tab = {
-		{ key = "h",      action = act.MoveTabRelative(-1) },
-		{ key = "j",      action = act.MoveTabRelative(-1) },
-		{ key = "k",      action = act.MoveTabRelative(1) },
-		{ key = "l",      action = act.MoveTabRelative(1) },
-		{ key = "Escape", action = "PopKeyTable" },
-		{ key = "Enter",  action = "PopKeyTable" },
+		{ key = 'Enter',  mods = 'NONE', action = act.PopKeyTable },
+		{ key = 'Escape', mods = 'NONE', action = act.PopKeyTable },
+		{ key = 'h',      mods = 'NONE', action = act.MoveTabRelative(-1) },
+		{ key = 'j',      mods = 'NONE', action = act.MoveTabRelative(-1) },
+		{ key = 'k',      mods = 'NONE', action = act.MoveTabRelative(1) },
+		{ key = 'l',      mods = 'NONE', action = act.MoveTabRelative(1) },
+	},
+
+	resize_pane = {
+		{ key = 'Enter',  mods = 'NONE', action = act.PopKeyTable },
+		{ key = 'Escape', mods = 'NONE', action = act.PopKeyTable },
+		{ key = 'h',      mods = 'NONE', action = act.AdjustPaneSize { 'Left', 1 } },
+		{ key = 'j',      mods = 'NONE', action = act.AdjustPaneSize { 'Down', 1 } },
+		{ key = 'k',      mods = 'NONE', action = act.AdjustPaneSize { 'Up', 1 } },
+		{ key = 'l',      mods = 'NONE', action = act.AdjustPaneSize { 'Right', 1 } },
 	},
 }
 -- Quickly navigate Tabs with Index
@@ -322,7 +351,6 @@ for i = 1, 9 do
 	})
 end
 
--- config.disable_default_key_bindings = true
 
 -- and finally, return the configuration to wezterm
 return config
