@@ -18,6 +18,7 @@ while read -r p ; do sudo apt-get install -y $p ; done < <(cat << "EOF"
     make
     ripgrep
     build-essential
+    coreutils
     file
     git
     libgl1
