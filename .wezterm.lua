@@ -36,7 +36,7 @@ local SOLID_SLASH_RIGHT = ""
 -- It prefers the title that was set via `tab:set_title()`
 -- or `wezterm cli set-tab-title`, but falls back to the
 -- title of the active pane in that tab.
-function tab_title(tab_info)
+local function tab_title(tab_info)
 	local title = tab_info.tab_title
 	-- if the tab title is explicitly set, take that
 	if title and #title > 0 then
@@ -47,7 +47,7 @@ function tab_title(tab_info)
 	return tab_info.active_pane.title
 end
 
-function button_style(bg, fg)
+local function button_style(bg, fg)
 	return wezterm.format {
 		{ Background = { Color = fg } },
 		{ Foreground = { Color = bg } },
@@ -58,7 +58,7 @@ function button_style(bg, fg)
 	}
 end
 
-function new_tab(bg, text)
+local function new_tab(bg, text)
 	return wezterm.format {
 		{ Background = { Color = CRUST } },
 		{ Foreground = { Color = bg } },
@@ -72,7 +72,7 @@ function new_tab(bg, text)
 	}
 end
 
-function right_status_element(fg, next, text)
+local function right_status_element(fg, next, text)
 	return { Background = { Color = next } },
 		{ Foreground = { Color = fg } },
 		{ Text = SOLID_LEFT_ARROW },
@@ -129,7 +129,8 @@ wezterm.on(
 		local edge_background = CRUST
 		local LEFT_SEPERATOR = SOLID_SLASH_LEFT .. SOLID_RECTANGLE
 		local RIGHT_SEPERATOR = SOLID_RECTANGLE .. SOLID_SLASH_RIGHT
-
+		local background
+		local foreground
 		if tab.is_active then
 			background = BASE
 			foreground = PEACH
@@ -147,7 +148,7 @@ wezterm.on(
 		-- ensure that the titles fit in the available space,
 		-- and that we have room for the edges.
 		title = wezterm.truncate_right(title, max_width - 6)
-		number = wezterm.truncate_right(tostring(tab.tab_index + 1), max_width - 4)
+		local number = wezterm.truncate_right(tostring(tab.tab_index + 1), max_width - 4)
 
 		return {
 			{ Background = { Color = edge_background } },
@@ -194,16 +195,14 @@ wezterm.on("update-status", function(window, pane)
 	end
 
 	-- Current working directory
-	local basename = function(s)
+	local shortcwd = function(fileurl)
 		-- Nothing a little regex can't fix
-		return string.gsub(s, "(.*[/\\])(.*)", "%2")
+		local filestr = fileurl.file_path
+		return string.gsub(filestr, "(.*[/\\])(.*)", "%2")
 	end
 	-- CWD and CMD could be nil (e.g. viewing log using Ctrl-Alt-l). Not a big deal, but check in case
 	local cwd = pane:get_current_working_dir()
-	cwd = cwd and basename(cwd) or ""
-	-- Current command
-	local cmd = pane:get_title()
-	cmd = cmd and basename(cmd) or ""
+	cwd = cwd and shortcwd(cwd) or ""
 
 	-- Time
 	local time = wezterm.strftime("%H:%M")
