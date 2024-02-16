@@ -36,12 +36,12 @@ plugins=(
     sudo #Doppel "ESC" für sudo
     zsh-autosuggestions # auto completion
     fast-syntax-highlighting # fast fish like syntax highlighting
-    zsh-vi-mode # better vim mode
+    # zsh-vi-mode # better vim mode
 )
 fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
 source $ZSH/oh-my-zsh.sh
 setopt COMBINING_CHARS # combine umlauts
-eval "$(zoxide init zsh --cmd z)"
+eval "$(zoxide init zsh --cmd cd)"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
